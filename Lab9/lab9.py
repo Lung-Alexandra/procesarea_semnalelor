@@ -5,6 +5,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 np.random.seed(1771)
 
+
 # a)
 
 def generare_serie(N):
@@ -183,8 +184,8 @@ def predict_arma(arma, p, q, test_ep, date_trecut):
     return np.array(res)
 
 
-p_arma = [1,2,5,11,40,50,100, 150,200]
-q_arma = [ 1,2,5,11,40,50,100,150,200]
+p_arma = [1, 2, 5, 11, 40, 50, 100, 150, 200]
+q_arma = [1, 2, 5, 11, 40, 50, 100, 150, 200]
 set_size_arma = 2000
 best_p = best_q = 0
 mse_best = np.inf
