@@ -152,95 +152,95 @@ def get_mse_err(image1, image2):
     return mse
 
 
-# # 1
-# X = misc.ascent()
-#
-# jpeg_alg = JPEGAlgorithm(Q_jpeg)
-#
-# compressed = jpeg_alg.compress_grayscale_image(X)
-# decompressed = jpeg_alg.decompress_grayscale_image(compressed)
-#
-# fig, axes = plt.subplots(1, 2, figsize=(10, 10))
-# fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
-# axes[0].imshow(X, cmap=plt.cm.gray)
-# axes[0].set_title('Imaginea Originala')
-#
-# axes[1].imshow(decompressed, cmap=plt.cm.gray)
-# axes[1].set_title('Imagine Decompresata')
-# fig.tight_layout()
-# plt.show()
-#
-# # 2
-# X = misc.face()
-#
-# jpeg_alg = JPEGAlgorithm(Q_jpeg)
-#
-# compressed = jpeg_alg.compress_rgb_image(X)
-# decompressed = jpeg_alg.decompress_rgb_image(compressed)
-#
-# fig, axes = plt.subplots(1, 2, figsize=(10, 10))
-# fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
-# axes[0].imshow(X)
-# axes[0].set_title('Imaginea Originala')
-#
-# axes[1].imshow(decompressed)
-# axes[1].set_title('Imagine Decompresata')
-# fig.tight_layout()
-# plt.show()
-#
-# # 3
-# X = misc.ascent()
-# factor = 10
-# jpeg_alg = JPEGAlgorithm(Q_jpeg, factor)
-#
-# compressed = jpeg_alg.compress_grayscale_image(X)
-# decompressed = jpeg_alg.decompress_grayscale_image(compressed)
-#
-# fig, axes = plt.subplots(1, 2, figsize=(10, 10))
-# fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
-# axes[0].imshow(X, cmap=plt.cm.gray)
-# axes[0].set_title('Imaginea Originala')
-#
-# axes[1].imshow(decompressed, cmap=plt.cm.gray)
-# axes[1].set_title('Imagine Decompresata')
-# fig.tight_layout()
-# plt.show()
-#
-# X = misc.face()
-# factor = 0.5
-# jpeg_alg = JPEGAlgorithm(Q_jpeg, factor)
-#
-# compressed = jpeg_alg.compress_rgb_image(X)
-# decompressed = jpeg_alg.decompress_rgb_image(compressed)
-#
-# fig, axes = plt.subplots(1, 2, figsize=(10, 10))
-# fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
-# axes[0].imshow(X)
-# axes[0].set_title('Imaginea Originala')
-#
-# axes[1].imshow(decompressed)
-# axes[1].set_title('Imagine Decompresata')
-# fig.tight_layout()
-# plt.show()
-#
-# # Test padding for images that have dimension not divisible with block_size
-# image_path = 'bunny.png'
-# original_image = io.imread(image_path)
-# original_image = original_image[:, :, :3]
-# jpeg_alg = JPEGAlgorithm(Q_jpeg)
-# compressed = jpeg_alg.compress_rgb_image(original_image)
-# decompressed = jpeg_alg.decompress_rgb_image(compressed)
-#
-# fig, axes = plt.subplots(1, 2, figsize=(15, 5))
-# fig.suptitle(f"MSE = {get_mse_err(original_image, decompressed)}", fontsize=16)
-# axes[0].imshow(original_image)
-# axes[0].set_title('Imaginea Originala')
-#
-# axes[1].imshow(decompressed)
-# axes[1].set_title('Imaginea Decompresata')
-#
-# fig.tight_layout()
-# plt.show()
+# 1
+X = misc.ascent()
+
+jpeg_alg = JPEGAlgorithm(Q_jpeg)
+
+compressed = jpeg_alg.compress_grayscale_image(X)
+decompressed = jpeg_alg.decompress_grayscale_image(compressed)
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 10))
+fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
+axes[0].imshow(X, cmap=plt.cm.gray)
+axes[0].set_title('Imaginea Originala')
+
+axes[1].imshow(decompressed, cmap=plt.cm.gray)
+axes[1].set_title('Imagine Decompresata')
+fig.tight_layout()
+plt.show()
+
+# 2
+X = misc.face()
+
+jpeg_alg = JPEGAlgorithm(Q_jpeg)
+
+compressed = jpeg_alg.compress_rgb_image(X)
+decompressed = jpeg_alg.decompress_rgb_image(compressed)
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 10))
+fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
+axes[0].imshow(X)
+axes[0].set_title('Imaginea Originala')
+
+axes[1].imshow(decompressed)
+axes[1].set_title('Imagine Decompresata')
+fig.tight_layout()
+plt.show()
+
+# 3
+X = misc.ascent()
+factor = 10
+jpeg_alg = JPEGAlgorithm(Q_jpeg, factor)
+
+compressed = jpeg_alg.compress_grayscale_image(X)
+decompressed = jpeg_alg.decompress_grayscale_image(compressed)
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 10))
+fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
+axes[0].imshow(X, cmap=plt.cm.gray)
+axes[0].set_title('Imaginea Originala')
+
+axes[1].imshow(decompressed, cmap=plt.cm.gray)
+axes[1].set_title('Imagine Decompresata')
+fig.tight_layout()
+plt.show()
+
+X = misc.face()
+factor = 0.5
+jpeg_alg = JPEGAlgorithm(Q_jpeg, factor)
+
+compressed = jpeg_alg.compress_rgb_image(X)
+decompressed = jpeg_alg.decompress_rgb_image(compressed)
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 10))
+fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
+axes[0].imshow(X)
+axes[0].set_title('Imaginea Originala')
+
+axes[1].imshow(decompressed)
+axes[1].set_title('Imagine Decompresata')
+fig.tight_layout()
+plt.show()
+
+# Test padding for images that have dimension not divisible with block_size
+image_path = 'bunny.png'
+original_image = io.imread(image_path)
+original_image = original_image[:, :, :3]
+jpeg_alg = JPEGAlgorithm(Q_jpeg)
+compressed = jpeg_alg.compress_rgb_image(original_image)
+decompressed = jpeg_alg.decompress_rgb_image(compressed)
+
+fig, axes = plt.subplots(1, 2, figsize=(15, 5))
+fig.suptitle(f"MSE = {get_mse_err(original_image, decompressed)}", fontsize=16)
+axes[0].imshow(original_image)
+axes[0].set_title('Imaginea Originala')
+
+axes[1].imshow(decompressed)
+axes[1].set_title('Imaginea Decompresata')
+
+fig.tight_layout()
+plt.show()
 
 jpeg_alg = JPEGAlgorithm(Q_jpeg, 500)
 input_video_path = 'shorter_shorter_video.mp4'
