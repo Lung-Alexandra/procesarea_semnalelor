@@ -43,7 +43,7 @@ class JPEGAlgorithm:
 
     def apply_dct_quantization(self, block):
         block_dct = dctn(block, type=2)
-        block_quantized = np.round(block_dct / self.Q_matrix).astype(np.int32)
+        block_quantized = np.round(block_dct / self.Q_matrix).astype(np.int16)
         return block_quantized
 
     def compress_grayscale_image(self, image):
@@ -86,11 +86,11 @@ class JPEGAlgorithm:
         height, width = compressed_image.shape
         height *= block_size
         width *= block_size
-        decompressed_image = np.zeros((height, width), dtype=np.int32)
+        decompressed_image = np.zeros((height, width), dtype=np.int16)
         for i in range(0, height, block_size):
             for j in range(0, width, block_size):
                 block_decompressed = zlib.decompress(compressed_image[i // block_size, j // block_size])
-                block_decompressed = np.frombuffer(block_decompressed, dtype=np.int32)
+                block_decompressed = np.frombuffer(block_decompressed, dtype=np.int16)
                 block_decompressed = block_decompressed.reshape(block_size, block_size)
                 block_decompressed = self.apply_inverse_dct_quantization(block_decompressed)
                 decompressed_image[i:i + block_size, j:j + block_size] = block_decompressed
@@ -107,12 +107,12 @@ class JPEGAlgorithm:
         decompressed_yuv = np.uint8(np.stack(decompressed_channels, axis=-1))
 
         # Convert the decompressed YCrCb back to RGB
-        decompressed_rgb = (cv2.cvtColor(decompressed_yuv, cv2.COLOR_YCR_CB2RGB)).astype(np.int32)
+        decompressed_rgb = (cv2.cvtColor(decompressed_yuv, cv2.COLOR_YCR_CB2RGB)).astype(np.int16)
 
         return decompressed_rgb
 
     # Compress and decompress videos
-    def compress_video(self, input_path,output_path):
+    def compress_video(self, input_path, output_path):
         cap = cv2.VideoCapture(input_path)
         fps = cap.get(cv2.CAP_PROP_FPS)
 
@@ -223,12 +223,19 @@ axes[1].set_title('Imagine Decompresata')
 fig.tight_layout()
 plt.show()
 
+
 # Test padding for images that have dimension not divisible with block_size
 image_path = 'bunny.png'
 original_image = io.imread(image_path)
 original_image = original_image[:, :, :3]
+original_size = len(original_image.tobytes())
 jpeg_alg = JPEGAlgorithm(Q_jpeg)
 compressed = jpeg_alg.compress_rgb_image(original_image)
+
+compression_size = sum(len(block) for mat in compressed for row in mat for block in row)
+print(f"Original size in bytes :{original_size} , Compression size in bytes {compression_size}")
+with open('bunny_compress.pkl', 'wb') as f:
+    pickle.dump(compressed, f)
 decompressed = jpeg_alg.decompress_rgb_image(compressed)
 
 fig, axes = plt.subplots(1, 2, figsize=(15, 5))
@@ -241,6 +248,7 @@ axes[1].set_title('Imaginea Decompresata')
 
 fig.tight_layout()
 plt.show()
+print(decompressed.shape)
 
 jpeg_alg = JPEGAlgorithm(Q_jpeg, 500)
 input_video_path = 'shorter_shorter_video.mp4'
