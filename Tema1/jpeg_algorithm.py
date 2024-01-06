@@ -7,8 +7,7 @@
 # 3. [6p] Extindeți algoritmul pentru compresia imaginii până la un prag MSE impus de utilizator.
 # 
 # 4. [4p] Extindeți algoritmul pentru compresie video. Demonstrați pe un clip scurt din care luați fiecare cadru și îl tratați ca pe o imagine.
-
-
+from skimage import io
 import zlib
 import cv2
 import numpy as np
@@ -30,9 +29,11 @@ Q_jpeg = np.array([[16, 11, 10, 16, 24, 40, 51, 61],
 block_size = 8
 
 
-class JPEGCompressor:
+class JPEGAlgorithm:
     def __init__(self, Q_matrix, factor=1):
         self.Q_matrix = factor * Q_matrix
+        self.padding = [0, 0]
+        self.original_dimensions = (0, 0)
 
     def apply_dct_quantization(self, block):
         block_dct = dctn(block, type=2)
@@ -40,14 +41,25 @@ class JPEGCompressor:
         return block_quantized
 
     def compress_grayscale_image(self, image):
-        height, width = image.shape[0], image.shape[1]
+        original_height, original_width = image.shape[0], image.shape[1]
+
+        # Calculate padding
+        if original_height % 8 != 0:
+            self.padding[0] = block_size - original_height % 8
+        if original_width % 8 != 0:
+            self.padding[1] = block_size - original_width % 8
+
+        new_image = np.pad(image, ((0, self.padding[0]), (0, self.padding[1])), mode='edge')
+        height, width = new_image.shape[0], new_image.shape[1]
+
         compressed_image = np.zeros((height // block_size, width // block_size), dtype=object)
         for i in range(0, height, block_size):
             for j in range(0, width, block_size):
-                block = image[i:i + block_size, j:j + block_size]
+                block = new_image[i:i + block_size, j:j + block_size]
                 block_quantized = self.apply_dct_quantization(block)
                 block = zlib.compress(block_quantized.flatten())
                 compressed_image[i // block_size, j // block_size] = block
+        self.original_dimensions = (original_height, original_width)
 
         return compressed_image
 
@@ -58,11 +70,6 @@ class JPEGCompressor:
         compressed_channels = [self.compress_grayscale_image(yuv[:, :, i]) for i in range(3)]
 
         return compressed_channels
-
-
-class JPEGDecompressor:
-    def __init__(self, Q_matrix, factor=1):
-        self.Q_matrix = factor * Q_matrix
 
     def apply_inverse_dct_quantization(self, block_quantized):
         block_dct = block_quantized * self.Q_matrix
@@ -82,6 +89,7 @@ class JPEGDecompressor:
                 block_decompressed = self.apply_inverse_dct_quantization(block_decompressed)
                 decompressed_image[i:i + block_size, j:j + block_size] = block_decompressed
 
+        decompressed_image = decompressed_image[:self.original_dimensions[0], :self.original_dimensions[1]]
         return decompressed_image
 
     def decompress_rgb_image(self, compressed_image):
@@ -106,11 +114,10 @@ def get_mse_err(image1, image2):
 # 1
 X = misc.ascent()
 
-jpeg_compressor = JPEGCompressor(Q_jpeg)
-jpeg_decompressor = JPEGDecompressor(Q_jpeg)
+jpeg_alg = JPEGAlgorithm(Q_jpeg)
 
-compressed = jpeg_compressor.compress_grayscale_image(X)
-decompressed = jpeg_decompressor.decompress_grayscale_image(compressed)
+compressed = jpeg_alg.compress_grayscale_image(X)
+decompressed = jpeg_alg.decompress_grayscale_image(compressed)
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 10))
 fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
@@ -125,11 +132,10 @@ plt.show()
 # 2
 X = misc.face()
 
-jpeg_compressor = JPEGCompressor(Q_jpeg)
-jpeg_decompressor = JPEGDecompressor(Q_jpeg)
+jpeg_alg = JPEGAlgorithm(Q_jpeg)
 
-compressed = jpeg_compressor.compress_rgb_image(X)
-decompressed = jpeg_decompressor.decompress_rgb_image(compressed)
+compressed = jpeg_alg.compress_rgb_image(X)
+decompressed = jpeg_alg.decompress_rgb_image(compressed)
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 10))
 fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
@@ -144,11 +150,10 @@ plt.show()
 # 3
 X = misc.ascent()
 factor = 10
-jpeg_compressor = JPEGCompressor(Q_jpeg, factor)
-jpeg_decompressor = JPEGDecompressor(Q_jpeg, factor)
+jpeg_alg = JPEGAlgorithm(Q_jpeg, factor)
 
-compressed = jpeg_compressor.compress_grayscale_image(X)
-decompressed = jpeg_decompressor.decompress_grayscale_image(compressed)
+compressed = jpeg_alg.compress_grayscale_image(X)
+decompressed = jpeg_alg.decompress_grayscale_image(compressed)
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 10))
 fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
@@ -162,11 +167,10 @@ plt.show()
 
 X = misc.face()
 factor = 0.5
-jpeg_compressor = JPEGCompressor(Q_jpeg, factor)
-jpeg_decompressor = JPEGDecompressor(Q_jpeg, factor)
+jpeg_alg = JPEGAlgorithm(Q_jpeg, factor)
 
-compressed = jpeg_compressor.compress_rgb_image(X)
-decompressed = jpeg_decompressor.decompress_rgb_image(compressed)
+compressed = jpeg_alg.compress_rgb_image(X)
+decompressed = jpeg_alg.decompress_rgb_image(compressed)
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 10))
 fig.suptitle(f"MSE = {get_mse_err(X, decompressed)}", fontsize=16)
@@ -177,3 +181,59 @@ axes[1].imshow(decompressed)
 axes[1].set_title('Imagine Decompresata')
 fig.tight_layout()
 plt.show()
+
+# Test padding for images that have dimension not divisible with block_size
+image_path = 'bunny.png'
+original_image = io.imread(image_path)
+original_image = original_image[:, :, :3]
+jpeg_alg = JPEGAlgorithm(Q_jpeg)
+compressed = jpeg_alg.compress_rgb_image(original_image)
+decompressed = jpeg_alg.decompress_rgb_image(compressed)
+
+fig, axes = plt.subplots(1, 2, figsize=(15, 5))
+fig.suptitle(f"MSE = {get_mse_err(original_image, decompressed)}", fontsize=16)
+axes[0].imshow(original_image)
+axes[0].set_title('Imaginea Originala')
+
+axes[1].imshow(decompressed)
+axes[1].set_title('Imaginea Decompresata')
+
+fig.tight_layout()
+plt.show()
+
+
+# Compress and decompress videos
+def compress_video(input_path, output_path, Q_matrix, factor=1):
+    cap = cv2.VideoCapture(input_path)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    jpeg_alg = JPEGAlgorithm(Q_matrix, factor)
+
+    # wirte in a file
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        # Compress each frame
+        compressed_frame = jpeg_alg.compress_rgb_image(frame)
+
+        # Uncompress each frame
+        decompressed_frame = jpeg_alg.decompress_rgb_image(compressed_frame)
+
+        # Write the decompress frame
+        out.write(decompressed_frame.astype(np.uint8))
+
+    cap.release()
+    out.release()
+
+
+input_video_path = 'shorter_shorter_video.mp4'
+output_video_path = 'output_video_compressed.mp4'
+
+compress_video(input_video_path, output_video_path, Q_jpeg, factor=600)
